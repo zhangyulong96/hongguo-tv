@@ -88,7 +88,7 @@ test('standard HTML5 fades the next episode cover after the real frame is ready'
   await new Promise((resolve) => setImmediate(resolve));
 
   assert.equal(fixtureState.hero.classList.contains('is-native-frame-revealing'), true);
-  assert.equal(fixtureState.timers[0].delay, 100);
+  assert.equal(fixtureState.timers[0].delay, 0);
   fixtureState.timers[0].fn();
   assert.equal(fixtureState.hero.classList.contains('is-episode-cover'), false);
   assert.equal(fixtureState.hero.classList.contains('is-preparing-video'), false);

@@ -5528,7 +5528,11 @@
     var nativePausedReady = mpv && presentation && presentation.rendered && staticFrameCoreIdle !== true &&
       video.paused && !video.ended && !video.seeking && video.readyState >= 2 &&
       video.videoWidth > 0 && video.videoHeight > 0;
-    var nativePlayingReady = !mpv || presentation && presentation.progressed && presentation.nativeCoreIdle !== true;
+    // MPV reports its own rendered frame through nativeframe/core_idle. Its
+    // `progress` poll only runs every 500ms, so requiring `progressed` here
+    // made every episode switch wait for the next poll even though the target
+    // frame was already on screen. A rendered frame is the real signal.
+    var nativePlayingReady = !mpv || presentation && (presentation.progressed || presentation.rendered) && presentation.nativeCoreIdle !== true;
     return !!(currentPlaybackPresentation(playback, presentation, video) && !presentation.waiting &&
       // Media3 reports a frame when it reaches the native surface, before the
       // WebView can know that SurfaceFlinger has presented it. Wait for media
@@ -5647,7 +5651,10 @@
           hero.classList.contains('is-episode-cover')) {
         presentation.revealing = true;
         hero.classList.add('is-native-frame-revealing');
-        presentation.revealTimer = setTimeout(complete, 100);
+        // The two RAFs above already put the target frame on the compositor and
+        // the cover still fades out over .1s on its own. Holding the reveal for
+        // another 100ms only added a fixed pause to every episode switch.
+        presentation.revealTimer = setTimeout(complete, 0);
         return;
       }
       if (isNativeMedia3PlaybackActive() && playback.preserveNativeTransition && hasHeldFrame) {
