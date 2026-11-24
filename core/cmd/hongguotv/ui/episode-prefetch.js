@@ -167,7 +167,12 @@
     return value === 'full' ? 'full' : 'range';
   }
   function prefetchThreshold(mode, engine) {
-    if (normalizePrefetchMode(mode) === 'full') return engine === 'mpv' ? 12 : 10;
+    // Full-episode prefetch is the only path that removes the resolver round
+    // trip from the episode-switch critical path. Start it earlier so a slow
+    // connection still has a chance to finish before the current episode ends.
+    // Still gated on stable playback, one adjacent episode, and a local cache
+    // with the existing TTL/size caps; range mode keeps its original timing.
+    if (normalizePrefetchMode(mode) === 'full') return engine === 'mpv' ? 8 : 6;
     return engine === 'mpv' ? 1 : 5;
   }
   function prepareParams(target) {

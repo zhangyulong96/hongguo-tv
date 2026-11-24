@@ -31,11 +31,11 @@ test('MPV can request an earlier prefetch threshold without changing the default
 test('full-download mode waits longer before prefetching, especially on MPV',()=>{
   assert.equal(prefetchThreshold('range','mpv'),1);
   assert.equal(prefetchThreshold('range',''),5);
-  assert.equal(prefetchThreshold('full','mpv'),12);
-  assert.equal(prefetchThreshold('full',''),10);
+  assert.equal(prefetchThreshold('full','mpv'),8);
+  assert.equal(prefetchThreshold('full',''),6);
 });
 test('full downloads do not start until the longer stability window is reached',async()=>{
-  for (const [engine,threshold] of [['',10],['mpv',12]]) {
+  for (const [engine,threshold] of [['',6],['mpv',8]]) {
     const f=fixture(x=>target({quality:x.quality,prefetch_mode:'full'}));
     f.p.maybe(info({stable_seconds:threshold-.01,prefetch_after_seconds:prefetchThreshold('full',engine),prefetch_mode:'full'}));
     await tick();assert.equal(f.calls.length,0,engine);
